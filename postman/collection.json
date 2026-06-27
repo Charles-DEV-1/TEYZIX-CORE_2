@@ -1,0 +1,312 @@
+{
+  "info": {
+    "name": "Customer Support Ticket API - Full Feature Tests",
+    "description": "Feature-by-feature Postman collection for the TEYZIX Backend Task 2 Customer Support Ticket Management API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 Health and Docs",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {"method": "GET", "url": "{{base_url}}/"}
+        },
+        {
+          "name": "Swagger UI",
+          "request": {"method": "GET", "url": "{{base_url}}/apidocs/"}
+        },
+        {
+          "name": "Swagger JSON",
+          "request": {"method": "GET", "url": "{{base_url}}/apispec_1.json"}
+        }
+      ]
+    },
+    {
+      "name": "01 Authentication",
+      "item": [
+        {
+          "name": "Register Customer",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": "{{base_url}}/auth/register",
+            "body": {"mode": "raw", "raw": "{\"name\":\"{{customer_name}}\",\"email\":\"{{customer_email}}\",\"password\":\"{{customer_password}}\",\"phone_number\":\"+2348012345678\"}"}
+          }
+        },
+        {
+          "name": "Login Customer",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["const body = pm.response.json();", "if (body.success && body.data) {", "  pm.environment.set('customer_token', body.data.access_token);", "  pm.environment.set('customer_refresh_token', body.data.refresh_token);", "  pm.environment.set('access_token', body.data.access_token);", "  pm.environment.set('refresh_token', body.data.refresh_token);", "}"]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": "{{base_url}}/auth/login",
+            "body": {"mode": "raw", "raw": "{\"email\":\"{{customer_email}}\",\"password\":\"{{customer_password}}\"}"}
+          }
+        },
+        {
+          "name": "Login Admin",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["const body = pm.response.json();", "if (body.success && body.data) {", "  pm.environment.set('admin_token', body.data.access_token);", "  pm.environment.set('admin_refresh_token', body.data.refresh_token);", "  pm.environment.set('access_token', body.data.access_token);", "  pm.environment.set('refresh_token', body.data.refresh_token);", "}"]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": "{{base_url}}/auth/login",
+            "body": {"mode": "raw", "raw": "{\"email\":\"{{admin_email}}\",\"password\":\"{{admin_password}}\"}"}
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["const body = pm.response.json();", "if (body.success && body.data) {", "  pm.environment.set('access_token', body.data.access_token);", "  pm.environment.set('refresh_token', body.data.refresh_token);", "}"]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{refresh_token}}"}],
+            "url": "{{base_url}}/auth/refresh"
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": "{{base_url}}/auth/forgot-password",
+            "body": {"mode": "raw", "raw": "{\"email\":\"{{customer_email}}\"}"}
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": "{{base_url}}/auth/reset-password",
+            "body": {"mode": "raw", "raw": "{\"email\":\"{{customer_email}}\",\"token\":\"{{reset_token}}\",\"password\":\"Password@123\"}"}
+          }
+        },
+        {
+          "name": "Logout Current Token",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": "{{base_url}}/auth/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 User Management - Admin",
+      "item": [
+        {
+          "name": "Create Agent",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["const body = pm.response.json();", "if (body.success && body.data) {", "  pm.environment.set('agent_id', body.data.id);", "  pm.environment.set('user_id', body.data.id);", "}"]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/users/agents",
+            "body": {"mode": "raw", "raw": "{\"name\":\"{{agent_name}}\",\"email\":\"{{agent_email}}\",\"password\":\"{{agent_password}}\",\"phone_number\":\"+2348098765432\"}"}
+          }
+        },
+        {
+          "name": "Login Agent",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["const body = pm.response.json();", "if (body.success && body.data) {", "  pm.environment.set('agent_token', body.data.access_token);", "  pm.environment.set('agent_refresh_token', body.data.refresh_token);", "}"]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": "{{base_url}}/auth/login",
+            "body": {"mode": "raw", "raw": "{\"email\":\"{{agent_email}}\",\"password\":\"{{agent_password}}\"}"}
+          }
+        },
+        {
+          "name": "List Users",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}], "url": "{{base_url}}/users"}
+        },
+        {
+          "name": "Get User",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}], "url": "{{base_url}}/users/{{user_id}}"}
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/users/{{user_id}}",
+            "body": {"mode": "raw", "raw": "{\"name\":\"Updated Support Agent\",\"phone_number\":\"+2348000000000\",\"is_active\":true}"}
+          }
+        },
+        {
+          "name": "Delete User / Deactivate",
+          "request": {"method": "DELETE", "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}], "url": "{{base_url}}/users/{{user_id}}"}
+        }
+      ]
+    },
+    {
+      "name": "03 Ticket Management",
+      "item": [
+        {
+          "name": "Create Ticket - Customer",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["const body = pm.response.json();", "if (body.success && body.data) {", "  pm.environment.set('ticket_id', body.data.id);", "}"]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{customer_token}}"}],
+            "url": "{{base_url}}/tickets",
+            "body": {"mode": "raw", "raw": "{\"title\":\"Cannot login\",\"description\":\"Login keeps failing on the customer portal\",\"priority\":\"high\"}"}
+          }
+        },
+        {
+          "name": "Update Ticket Information",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{customer_token}}"}],
+            "url": "{{base_url}}/tickets/{{ticket_id}}",
+            "body": {"mode": "raw", "raw": "{\"title\":\"Cannot login after password reset\",\"description\":\"Login keeps failing on the customer portal after resetting my password\",\"priority\":\"urgent\"}"}
+          }
+        },
+        {
+          "name": "Get My Tickets - Customer",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{customer_token}}"}], "url": "{{base_url}}/tickets/my-tickets"}
+        },
+        {
+          "name": "Get Ticket By ID",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{customer_token}}"}], "url": "{{base_url}}/tickets/{{ticket_id}}"}
+        },
+        {
+          "name": "Get All Tickets - Admin",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}], "url": "{{base_url}}/tickets"}
+        },
+        {
+          "name": "Assign Ticket - Admin",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/tickets/{{ticket_id}}/assign",
+            "body": {"mode": "raw", "raw": "{\"agent_id\": {{agent_id}}}"}
+          }
+        },
+        {
+          "name": "Change Status To Resolved - Agent",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{agent_token}}"}],
+            "url": "{{base_url}}/tickets/{{ticket_id}}/status",
+            "body": {"mode": "raw", "raw": "{\"status\":\"resolved\"}"}
+          }
+        },
+        {
+          "name": "Close Ticket - Admin",
+          "request": {"method": "PATCH", "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}], "url": "{{base_url}}/tickets/{{ticket_id}}/close"}
+        },
+        {
+          "name": "Reopen Ticket - Admin",
+          "request": {"method": "PATCH", "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}], "url": "{{base_url}}/tickets/{{ticket_id}}/reopen"}
+        }
+      ]
+    },
+    {
+      "name": "04 Replies and Conversation",
+      "item": [
+        {
+          "name": "Add Reply - Customer",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{customer_token}}"}],
+            "url": "{{base_url}}/tickets/{{ticket_id}}/replies",
+            "body": {"mode": "raw", "raw": "{\"message\":\"I still cannot access my account.\"}"}
+          }
+        },
+        {
+          "name": "Add Reply - Agent",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{agent_token}}"}],
+            "url": "{{base_url}}/tickets/{{ticket_id}}/replies",
+            "body": {"mode": "raw", "raw": "{\"message\":\"We are investigating this issue.\"}"}
+          }
+        },
+        {
+          "name": "Get Conversation History",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{customer_token}}"}], "url": "{{base_url}}/tickets/{{ticket_id}}/replies"}
+        }
+      ]
+    },
+    {
+      "name": "05 Search and Filtering",
+      "item": [
+        {
+          "name": "Search By Title",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}], "url": "{{base_url}}/tickets?title=login"}
+        },
+        {
+          "name": "Filter By Status",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}], "url": "{{base_url}}/tickets?status=open"}
+        },
+        {
+          "name": "Filter By Priority",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}], "url": "{{base_url}}/tickets?priority=urgent"}
+        },
+        {
+          "name": "Search By Customer",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}], "url": "{{base_url}}/tickets?customer=Jane"}
+        },
+        {
+          "name": "Filter By Agent",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}], "url": "{{base_url}}/tickets?agent={{agent_id}}"}
+        },
+        {
+          "name": "Filter By Date",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}], "url": "{{base_url}}/tickets?date={{today}}"}
+        },
+        {
+          "name": "Combined Filters",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}], "url": "{{base_url}}/tickets?status=open&priority=urgent"}
+        }
+      ]
+    },
+    {
+      "name": "06 Dashboard",
+      "item": [
+        {
+          "name": "Dashboard Stats - Admin",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}], "url": "{{base_url}}/dashboard/stats"}
+        }
+      ]
+    },
+    {
+      "name": "07 Validation and Authorization Checks",
+      "item": [
+        {
+          "name": "Invalid Password Register Should Fail",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": "{{base_url}}/auth/register",
+            "body": {"mode": "raw", "raw": "{\"name\":\"Bad Password\",\"email\":\"bad-password@example.com\",\"password\":\"weak\",\"phone_number\":\"+2348012345678\"}"}
+          }
+        },
+        {
+          "name": "Invalid Ticket Should Fail",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{customer_token}}"}],
+            "url": "{{base_url}}/tickets",
+            "body": {"mode": "raw", "raw": "{\"title\":\"No\",\"description\":\"short\",\"priority\":\"invalid\"}"}
+          }
+        },
+        {
+          "name": "Customer Cannot List All Tickets",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{customer_token}}"}], "url": "{{base_url}}/tickets"}
+        },
+        {
+          "name": "Customer Cannot Access Dashboard",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{customer_token}}"}], "url": "{{base_url}}/dashboard/stats"}
+        },
+        {
+          "name": "Closed Ticket Cannot Move Back By Status API",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/tickets/{{ticket_id}}/status",
+            "body": {"mode": "raw", "raw": "{\"status\":\"open\"}"}
+          }
+        }
+      ]
+    }
+  ]
+}

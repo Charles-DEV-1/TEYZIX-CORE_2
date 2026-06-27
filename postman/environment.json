@@ -1,0 +1,27 @@
+{
+  "name": "Support Ticket API Local",
+  "values": [
+    {"key": "base_url", "value": "http://127.0.0.1:5000", "enabled": true},
+    {"key": "admin_email", "value": "admin@example.com", "enabled": true},
+    {"key": "admin_password", "value": "Admin@123", "enabled": true},
+    {"key": "customer_name", "value": "Jane Customer", "enabled": true},
+    {"key": "customer_email", "value": "jane@example.com", "enabled": true},
+    {"key": "customer_password", "value": "Password@123", "enabled": true},
+    {"key": "agent_name", "value": "Support Agent", "enabled": true},
+    {"key": "agent_email", "value": "agent.postman@example.com", "enabled": true},
+    {"key": "agent_password", "value": "Agent@123", "enabled": true},
+    {"key": "customer_token", "value": "", "enabled": true},
+    {"key": "customer_refresh_token", "value": "", "enabled": true},
+    {"key": "admin_token", "value": "", "enabled": true},
+    {"key": "admin_refresh_token", "value": "", "enabled": true},
+    {"key": "agent_token", "value": "", "enabled": true},
+    {"key": "agent_refresh_token", "value": "", "enabled": true},
+    {"key": "access_token", "value": "", "enabled": true},
+    {"key": "refresh_token", "value": "", "enabled": true},
+    {"key": "ticket_id", "value": "", "enabled": true},
+    {"key": "agent_id", "value": "", "enabled": true},
+    {"key": "user_id", "value": "", "enabled": true},
+    {"key": "reset_token", "value": "paste-token-from-email-or-db", "enabled": true},
+    {"key": "today", "value": "2026-06-26", "enabled": true}
+  ]
+}
