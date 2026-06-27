@@ -4,7 +4,7 @@ A modular Flask API for customer support tickets with JWT authentication, Postgr
 
 ## Features
 
-- Customer registration, login, refresh tokens, logout, forgot password, and reset password.
+- User registration with `admin`, `agent`, or `customer` roles, login, refresh tokens, logout, forgot password, and reset password.
 - Roles: `admin`, `agent`, and `customer`.
 - Customers create tickets, view their own tickets, and reply.
 - Agents view assigned tickets, reply, and move tickets through the workflow.
@@ -25,12 +25,13 @@ pip install -r requirements.txt
 copy .env.example .env
 ```
 
-For local beginner-friendly development, the default config uses SQLite. For PostgreSQL, set:
+Edit `.env` and set your PostgreSQL connection string:
 
 ```bash
-set APP_CONFIG=app.config.production.ProductionConfig
-set DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/support_api
+DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/support_api
 ```
+
+The app loads `.env` automatically. The default development config uses `DATABASE_URL`, so no SQLite database is created for normal local development.
 
 ## Run
 
@@ -58,35 +59,10 @@ set RATE_LIMIT_WINDOW_SECONDS=60
 ## Migrations
 
 ```bash
-flask --app app.py db init
-flask --app app.py db migrate -m "initial"
 flask --app app.py db upgrade
 ```
 
-No raw SQL is required.
-
-## First Admin User
-
-Create an admin in a Flask shell:
-
-```bash
-flask --app app.py shell
-```
-
-```python
-from app.extensions.db import db
-from app.models.user import User
-from app.auth.utils import hash_password
-
-admin = User(
-    name="Admin",
-    email="admin@example.com",
-    password_hash=hash_password("Admin@123"),
-    role="admin",
-)
-db.session.add(admin)
-db.session.commit()
-```
+This applies the included Alembic migrations to the PostgreSQL database configured in `.env`. No raw SQL is required.
 
 ## Main Endpoints
 
@@ -136,9 +112,12 @@ Register:
   "name": "Jane Customer",
   "email": "jane@example.com",
   "password": "Password@123",
+  "role": "customer",
   "phone_number": "+2348012345678"
 }
 ```
+
+Use `"role": "admin"` for an admin account or `"role": "agent"` for an agent account.
 
 Create ticket:
 

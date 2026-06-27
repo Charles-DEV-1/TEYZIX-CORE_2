@@ -1,21 +1,28 @@
 import os
 
+import click
 from flask import Flask
 from flask_migrate import Migrate
+from dotenv import load_dotenv
 
+from app.auth.utils import hash_password
 from app.extensions.bcrypt import bcrypt
 from app.extensions.db import db
 from app.extensions.jwt import jwt
 from app.extensions.mail import mail
 from app.extensions.rate_limiter import init_rate_limiter
 from app.extensions.redis import init_redis, is_token_blacklisted
+from app.models.user import User
 from app.swagger_config import init_swagger
 from app.utils.response import error_response
+from app.utils.validators import validate_email, validate_password
 
 migrate = Migrate()
 
 
 def create_app(config_object=None):
+    load_dotenv()
+
     app = Flask(__name__)
     config_path = config_object or os.getenv("APP_CONFIG", "app.config.development.DevelopmentConfig")
     app.config.from_object(config_path)
@@ -44,12 +51,48 @@ def create_app(config_object=None):
 
     register_error_handlers(app)
     register_jwt_handlers()
+    register_cli_commands(app)
 
     @app.get("/")
     def health_check():
         return {"success": True, "message": "Customer Support Ticket API is running"}
 
     return app
+
+
+def register_cli_commands(app):
+    @app.cli.command("create-admin")
+    @click.option("--name", prompt=True, help="Admin full name.")
+    @click.option("--email", prompt=True, help="Admin email address.")
+    @click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True, help="Admin password.")
+    def create_admin(name, email, password):
+        """Create a new admin or promote an existing user to admin."""
+        email = email.lower().strip()
+        name = name.strip()
+
+        if not name:
+            raise click.ClickException("Name is required.")
+        if not validate_email(email):
+            raise click.ClickException("A valid email address is required.")
+
+        password_ok, password_error = validate_password(password)
+        if not password_ok:
+            raise click.ClickException(password_error)
+
+        user = User.query.filter_by(email=email).first()
+        if user:
+            user.name = name
+            user.password_hash = hash_password(password)
+            user.role = "admin"
+            user.is_active = True
+            message = f"Updated existing user {email} to admin."
+        else:
+            user = User(name=name, email=email, password_hash=hash_password(password), role="admin")
+            db.session.add(user)
+            message = f"Created admin user {email}."
+
+        db.session.commit()
+        click.echo(message)
 
 
 def register_jwt_handlers():

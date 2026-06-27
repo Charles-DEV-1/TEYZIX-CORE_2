@@ -18,11 +18,12 @@ auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.post("/register")
 def register():
+    print(request.get_json())
     """
     ---
     tags: [Authentication]
-    summary: Register a customer
-    description: Creates a customer account.
+    summary: Register a user
+    description: Creates an account with role admin, agent, or customer.
     responses:
       201: {description: User registered}
     """

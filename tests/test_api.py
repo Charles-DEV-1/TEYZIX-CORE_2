@@ -375,3 +375,50 @@ def test_rate_limiting_blocks_repeated_requests():
     assert response.status_code == 429
     assert response.get_json()["message"] == "Too many requests. Please try again later."
     assert response.headers["Retry-After"]
+
+
+def test_create_admin_command_creates_admin(app):
+    runner = app.test_cli_runner()
+    result = runner.invoke(
+        args=[
+            "create-admin",
+            "--name",
+            "CLI Admin",
+            "--email",
+            "cli-admin@example.com",
+            "--password",
+            "Admin@456",
+        ]
+    )
+
+    assert result.exit_code == 0
+    assert "Created admin user cli-admin@example.com." in result.output
+
+    with app.app_context():
+        user = User.query.filter_by(email="cli-admin@example.com").first()
+        assert user.role == "admin"
+        assert user.is_active is True
+
+
+def test_create_admin_command_promotes_existing_user(app):
+    runner = app.test_cli_runner()
+    result = runner.invoke(
+        args=[
+            "create-admin",
+            "--name",
+            "Promoted Admin",
+            "--email",
+            "customer@example.com",
+            "--password",
+            "Admin@789",
+        ]
+    )
+
+    assert result.exit_code == 0
+    assert "Updated existing user customer@example.com to admin." in result.output
+
+    with app.app_context():
+        user = User.query.filter_by(email="customer@example.com").first()
+        assert user.name == "Promoted Admin"
+        assert user.role == "admin"
+        assert user.is_active is True

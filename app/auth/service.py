@@ -7,7 +7,7 @@ from app.extensions.db import db
 from app.extensions.redis import blacklist_token
 from app.models.user import User
 from app.notifications.email_service import send_email
-from app.utils.validators import validate_email, validate_password, validate_phone
+from app.utils.validators import validate_email, validate_password, validate_phone, validate_role
 
 
 def register_user(data):
@@ -16,6 +16,8 @@ def register_user(data):
     email = (data.get("email") or "").lower().strip()
     password = data.get("password")
     phone_number = data.get("phone_number")
+    role = (data.get("role") or "customer").lower().strip()
+    print("Role received:", role)
 
     if not name:
         errors["name"] = "Name is required."
@@ -26,20 +28,24 @@ def register_user(data):
         errors["password"] = password_error
     if not validate_phone(phone_number):
         errors["phone_number"] = "Phone number is invalid."
+    if not validate_role(role):
+        errors["role"] = "Role must be admin, agent, or customer."
     if User.query.filter_by(email=email).first():
         errors["email"] = "Email already exists."
     if errors:
         return None, errors
-
+    print("ROLE =", role)
     user = User(
         name=name,
         email=email,
         password_hash=hash_password(password),
-        role="customer",
+        role=role,
         phone_number=phone_number,
     )
+    print("Role received:", role)
     db.session.add(user)
     db.session.commit()
+    print("Saved role:", user.role)
     return user, None
 
 
@@ -73,7 +79,7 @@ def start_password_reset(email: str):
 
 def reset_password(data):
     email = (data.get("email") or "").lower().strip()
-    token = data.get("token")
+    token = (data.get("token") or "").strip()
     password = data.get("password")
     user = User.query.filter_by(email=email).first()
     password_ok, password_error = validate_password(password)

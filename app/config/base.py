@@ -1,6 +1,11 @@
 import os
 from datetime import timedelta
 
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
 
 def database_url():
     url = os.getenv("DATABASE_URL", "postgresql+psycopg://postgres:postgres@localhost:5432/support_api")
@@ -19,6 +24,7 @@ class BaseConfig:
 
     SQLALCHEMY_DATABASE_URI = database_url()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
 
     REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
